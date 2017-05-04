@@ -13,10 +13,7 @@ using namespace std;
 
 class Button {
     public:
-        enum b_event {
-            ENTER,PLUSMINUS,DECIMAL,ADD,SUBTRACT,MULTIPLY,DIVIDE,RECIPROCAL,
-            SQRT,CLEAR,ALLCLEAR,SIN,COS,TAN,EXPONENT,DELETE,POP,DEL
-        };
+        int b_event;
         Button();
         Button(int x1_in, int y1_in, int width, int height, ALLEGRO_COLOR color_in, string text_in, b_event event_in);
         void draw();

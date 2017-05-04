@@ -1,10 +1,13 @@
 #include <iostream>
 #include <stdio.h>
-#include "stack.cpp"
-#include "stack.h"
+#include "Stack.cpp"
+#include "Stack.h"
+#include "Button.cpp"
+#include "Button.h"
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
 #include <cstdlib>
 #include <time.h>
 #include <queue>
@@ -23,6 +26,12 @@ const int numBlocks = 8;
 ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 
 Stack pillar[3];
+int nButtons = 3;
+Button *buttons[nButtons];
+
+enum b_event {
+    ADD_BLOCK,REMOVE_BLOCK,RESTART,AUTO_COMPLETE
+};
 
 int main(int argc, char **argv) {
 	
@@ -41,7 +50,14 @@ int main(int argc, char **argv) {
 		pillar[0].push(blocks[i]);
 	}
 	
-//	draw_all(blocks);
+    // SECOND LINE C AC POP POW
+    buttons[0] = new Button(margin, margin+locationy, size-margin, size-margin, RED, "C",
+                            ADD_BLOCK);
+	buttons[1] = new Button(margin, margin+locationy, size-margin, size-margin, RED, "C",
+                            REMOVE_BLOCK);
+    buttons[2] = new Button(margin, margin+locationy, size-margin, size-margin, RED, "C",
+                            RESTART);
+		
 	if (wait_and_draw(blocks) == 1) {
 		return 1;
 	}
@@ -129,6 +145,9 @@ void draw_all(Block* to_draw[]) {
 	for (int i = 0; i <= numBlocks; i++) {
 		to_draw[i]->draw(incWidth, incHeight);
 	}
+	for (int i = 0; i < nButtons; i++) {
+		buttons[i]->draw();
+	}
 	al_flip_display();
 }
 
@@ -137,28 +156,48 @@ bool initializeAllegro(ALLEGRO_DISPLAY *&display) {
         cerr << "failed to initialize allegro! "  << endl;
         return false;
     }
-    cout << "Successfully Initialized Allegro, part 1" << endl;
-    
+    cout << "Successfully Initialized Allegro" << endl;
+
     if (!al_init_primitives_addon())  {
         cerr << "failed to initialize primitives! "  << endl;
         return false;
     }
     cout << "Initialized Primitives" << endl;
-    
-	if (!al_install_keyboard()) {
+
+    if (!al_init_font_addon())  {
+        cerr << "failed to initialize primitives! "  << endl;
+        return false;
+    }
+    cout << "Initialized font addon" << endl;
+
+    if (!al_init_ttf_addon())  {
+        cerr << "failed to initialize primitives! "  << endl;
+        return false;
+    }
+    cout << "Initialized ttf addon" << endl;
+
+    if (!al_install_keyboard()) {
         cerr << "failed to initialize the keyboard! "  << endl;
         return false;
     }
-    cout << "Successfully Initialized Allegro, part 2" << endl;
-    
-    al_set_new_display_flags(ALLEGRO_WINDOWED);
-	display = al_create_display(ScreenWidth, ScreenHeight);
-    cout << "Successfully Initialized Allegro, part 3" << endl;
-    
+    cout << "Successfully Initialized keyboard" << endl;
+
+    if(!al_install_mouse()) {
+        cerr << "failed to initialize the mouse!" << endl;
+        return -1;
+    }
+    cout << "Successfully Initialized mouse" << endl;
+
+    al_set_new_display_flags(ALLEGRO_WINDOWED); //| ALLEGRO_RESIZABLE);
+    display = al_create_display(ScreenWidth, ScreenHeight);
+    cout << "Successfully Initialized display" << endl;
+
+
     event_queue = al_create_event_queue();
-    
-	al_register_event_source(event_queue, al_get_keyboard_event_source()); //keyboard presses
-	al_register_event_source(event_queue, al_get_display_event_source(display)); //click x
-    cout << "Successfully Initialized Allegro, part 5" << endl;
+
+    al_register_event_source(event_queue, al_get_mouse_event_source()); //mouse clicks
+    al_register_event_source(event_queue, al_get_keyboard_event_source()); //keyboard presses
+    al_register_event_source(event_queue, al_get_display_event_source(display)); //click x
+    cout << "Successfully Initialized All of Allegro" << endl;
     return true;
 }
