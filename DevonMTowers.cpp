@@ -21,7 +21,7 @@ int ScreenWidth = 760;
 int ScreenHeight = 480;
 const int numBlocks = 8;
 ALLEGRO_EVENT_QUEUE *event_queue = NULL;
-//kai lu is a cool dude
+
 Stack pillar[3];
 
 int main(int argc, char **argv) {
