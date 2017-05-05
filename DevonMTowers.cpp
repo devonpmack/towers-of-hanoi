@@ -11,8 +11,8 @@
 #include <cstdlib>
 #include <time.h>
 #include <queue>
-using namespace std;
 
+using namespace std;
 
 bool initializeAllegro(ALLEGRO_DISPLAY *&display);
 bool next_move();
@@ -22,11 +22,11 @@ int wait_and_draw(Block* blocks[]);
 
 int ScreenWidth = 760;
 int ScreenHeight = 480;
-const int numBlocks = 8;
+int numBlocks=7;
 ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 
 Stack pillar[3];
-int nButtons = 3;
+const int nButtons = 3;
 Button *buttons[nButtons];
 
 enum b_event {
@@ -34,7 +34,13 @@ enum b_event {
 };
 
 int main(int argc, char **argv) {
+	cout << "How many blocks would you like to solve?" << endl;
+	cin >> numBlocks;
 	
+	if (numBlocks < 2) {
+		cout << "Use at least 1 disk.";
+		return 1;
+	}
 	srand(time(NULL));
 	
 	ALLEGRO_DISPLAY *display = NULL;
@@ -51,12 +57,12 @@ int main(int argc, char **argv) {
 	}
 	
     // SECOND LINE C AC POP POW
-    buttons[0] = new Button(margin, margin+locationy, size-margin, size-margin, RED, "C",
+    buttons[0] = new Button(20, 30, 60, 60, al_map_rgb(255,255,255f), "TT",
                             ADD_BLOCK);
-	buttons[1] = new Button(margin, margin+locationy, size-margin, size-margin, RED, "C",
-                            REMOVE_BLOCK);
+	/*buttons[1] = new Button(margin, margin+locationy, size-margin, size-margin, RED, "C",
+                            REMOVE_BLO);
     buttons[2] = new Button(margin, margin+locationy, size-margin, size-margin, RED, "C",
-                            RESTART);
+                            RESTART);*/
 		
 	if (wait_and_draw(blocks) == 1) {
 		return 1;
@@ -139,15 +145,16 @@ void draw_all(Block* to_draw[]) {
 	if (numBlocks < 6) {
 		incHeight = 32;
 	} else {
-		incHeight = 250/numBlocks;
+		incHeight = 250./numBlocks;
 	}
 	
-	for (int i = 0; i <= numBlocks; i++) {
+	for (int i = 0; i < numBlocks; i++) {
 		to_draw[i]->draw(incWidth, incHeight);
 	}
-	for (int i = 0; i < nButtons; i++) {
-		buttons[i]->draw();
-	}
+	//for (int i = 0; i < nButtons; i++) {
+	//	buttons[i]->draw();
+	//}
+	buttons[0]->draw();
 	al_flip_display();
 }
 

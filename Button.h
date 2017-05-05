@@ -1,5 +1,6 @@
 //
 // Created by Devon Mack on 4/4/2017.
+// Modified 5/4/2017
 //
 #ifndef RPN_BUTTON_H
 #define RPN_BUTTON_H
@@ -15,11 +16,11 @@ class Button {
     public:
         int b_event;
         Button();
-        Button(int x1_in, int y1_in, int width, int height, ALLEGRO_COLOR color_in, string text_in, b_event event_in);
+        Button(int x1_in, int y1_in, int width, int height, ALLEGRO_COLOR color_in, string text_in, int event_in);
         void draw();
         bool checkMouse(int x, int y);
         string getText();
-        b_event getEvent();
+        int getEvent();
         void setText(string text_in);
         //~Stack();
     protected:
@@ -33,7 +34,7 @@ class Button {
         bool hovering;
         bool pressing;
         ALLEGRO_FONT *font;
-        b_event event;
+        int event;
 
 };
 

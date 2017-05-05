@@ -13,7 +13,7 @@ Button::Button() {
     //throw invalid_argument("You can't initialize a button with no arguments!");
 }
 
-Button::Button(int x1_in, int y1_in, int width, int height, ALLEGRO_COLOR color_in, string text_in, b_event event_in) {
+Button::Button(int x1_in, int y1_in, int width, int height, ALLEGRO_COLOR color_in, string text_in, int event_in) {
     x1 = x1_in;
     y1 = y1_in;
     w = width;
@@ -48,7 +48,7 @@ bool Button::checkMouse(int x, int y) {
     }
 }
 
-Button::b_event Button::getEvent() {
+int Button::getEvent() {
     return event;
 }
 
