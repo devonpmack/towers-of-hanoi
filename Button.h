@@ -22,6 +22,7 @@ class Button {
         string getText();
         int getEvent();
         void setText(string text_in);
+        void setCol(ALLEGRO_COLOR color_in);
         //~Stack();
     protected:
         int x1;

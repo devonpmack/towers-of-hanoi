@@ -23,6 +23,7 @@ int wait_and_draw(Block* blocks[]);
 int ScreenWidth = 760;
 int ScreenHeight = 480;
 int numBlocks=7;
+
 bool autorun = false;
 ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 
@@ -59,6 +60,9 @@ int main(int argc, char **argv) {
 			}
 		}
 
+        autorun = false;
+
+        /* --- Main loop --- */
 		int b_number = numBlocks;
 		for (int i = 0; i < numBlocks; i++) {
 			blocks[i] = new Block(pillar[0].getSize(), b_number--);
@@ -112,37 +116,47 @@ int main(int argc, char **argv) {
 }
 
 int wait_and_draw(Block* blocks[]) {
+
     /* This function waits for input and will return based on the input */
 
-	draw_all(blocks);
+    draw_all(blocks);
 	al_flip_display();
 	while(true) {
-		ALLEGRO_EVENT ev;
-		al_wait_for_event(event_queue, &ev); //Wait for event
-		
-		//If [x] is clicked then close game
-		if(ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
-			return 1;
-		}
-		//If keyboard pressed
-		else if(ev.type == ALLEGRO_EVENT_KEY_DOWN) {
-			if(ev.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
-				return 1;
-			}
-			else {
-				return 0;
-			}
-		}
-		else if(ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
-			if(ev.mouse.button == 1) {
-				// Find out if the user clicked the button
-				if (buttons[0]->checkMouse(ev.mouse.x,ev.mouse.y)) {
-					return 2;
-				}
-			}
-		}
+        ALLEGRO_EVENT ev;
+        al_wait_for_event(event_queue, &ev); //Wait for event
+
+        //If [x] is clicked then close game
+        if (ev.type == ALLEGRO_EVENT_DISPLAY_CLOSE) {
+            return 1;
+        }
+            //If keyboard pressed
+        else if (ev.type == ALLEGRO_EVENT_KEY_DOWN) {
+            if (ev.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+                return 1;
+            } else {
+                return 0;
+            }
+        } else if (ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+            if (ev.mouse.button == 1) {
+                // Find out if the user clicked the button
+                if (buttons[0]->checkMouse(ev.mouse.x, ev.mouse.y)) {
+                    return 2;
+                }
+                if (buttons[1]->checkMouse(ev.mouse.x, ev.mouse.y)) {
+                    autorun = !autorun;
+                    cout << autorun;
+                    if (autorun) {
+                        buttons[1]->setCol(al_map_rgb(255, 150, 150));
+                    } else {
+                        buttons[1]->setCol(al_map_rgb(255, 255, 255));
+                    }
+                    draw_all(blocks);
+                }
+            }
+        } else if (ev.type == ALLEGRO_EVENT_TIMER && autorun) {
+            return 0;
+        }
     }
-    
     return 0;
 }
 
@@ -214,6 +228,8 @@ void draw_all(Block* to_draw[]) {
 	//	buttons[i]->draw();
 	//}
 	buttons[0]->draw();
+
+    buttons[1]->draw();
 	al_flip_display();
 }
 
@@ -252,7 +268,7 @@ bool initializeAllegro(ALLEGRO_DISPLAY *&display) {
 
     if(!al_install_mouse()) {
         cerr << "failed to initialize the mouse!" << endl;
-        return -1;
+        return false;
     }
     cout << "Successfully Initialized mouse" << endl;
 
@@ -260,12 +276,21 @@ bool initializeAllegro(ALLEGRO_DISPLAY *&display) {
     display = al_create_display(ScreenWidth, ScreenHeight);
     cout << "Successfully Initialized display" << endl;
 
+    ALLEGRO_TIMER *timer = al_create_timer(1.0 / 300);
+    if(!timer) {
+        cerr << "failed to create timer!" << endl;
+        return false;
+    }
 
     event_queue = al_create_event_queue();
 
     al_register_event_source(event_queue, al_get_mouse_event_source()); //mouse clicks
     al_register_event_source(event_queue, al_get_keyboard_event_source()); //keyboard presses
     al_register_event_source(event_queue, al_get_display_event_source(display)); //click x
+    al_register_event_source(event_queue, al_get_timer_event_source(timer)); //click x
+
+    al_start_timer(timer);
+
     cout << "Successfully Initialized All of Allegro" << endl;
     return true;
 }

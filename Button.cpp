@@ -52,6 +52,10 @@ int Button::getEvent() {
     return event;
 }
 
+void Button::setCol(ALLEGRO_COLOR color_in) {
+    color = color_in;
+}
+
 void Button::setText(string text_in) {
     text = text_in;
 }
