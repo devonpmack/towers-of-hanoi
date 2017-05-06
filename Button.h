@@ -2,8 +2,8 @@
 // Created by Devon Mack on 4/4/2017.
 // Modified 5/4/2017
 //
-#ifndef RPN_BUTTON_H
-#define RPN_BUTTON_H
+#ifndef BUTTON_H
+#define BUTTON_H
 
 #include <string>
 #include <allegro5/allegro.h>
@@ -39,4 +39,4 @@ class Button {
 };
 
 
-#endif //RPN_BUTTON_H
+#endif //BUTTON_H

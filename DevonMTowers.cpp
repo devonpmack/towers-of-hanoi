@@ -1,16 +1,16 @@
 #include <iostream>
-#include <stdio.h>
-#include "Stack.cpp"
+//#include "Stack.cpp"
 #include "Stack.h"
-#include "Button.cpp"
+//#include "Button.cpp"
 #include "Button.h"
+
+#include "Block.h"
+
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <allegro5/allegro_font.h>
 #include <allegro5/allegro_ttf.h>
-#include <cstdlib>
 #include <time.h>
-#include <queue>
 
 using namespace std;
 
@@ -23,6 +23,7 @@ int wait_and_draw(Block* blocks[]);
 int ScreenWidth = 760;
 int ScreenHeight = 480;
 int numBlocks=7;
+bool autorun = false;
 ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 
 Stack pillar[3];
@@ -50,33 +51,69 @@ int main(int argc, char **argv) {
 	}	
 	
 	Block *blocks[numBlocks];
-	int b_number = numBlocks;
-	for (int i = 0; i < numBlocks; i++) {
-		blocks[i] = new Block(pillar[0].getSize(), b_number--);
-		pillar[0].push(blocks[i]);
+	while (true) {
+		// Reset everything (code restart)
+		for (int i = 0; i < 3; i++) {
+			while (pillar[i].getSize()) {
+				pillar[i].pop();
+			}
+		}
+
+		int b_number = numBlocks;
+		for (int i = 0; i < numBlocks; i++) {
+			blocks[i] = new Block(pillar[0].getSize(), b_number--);
+			pillar[0].push(blocks[i]);
+		}
+
+		// SECOND LINE C AC POP POW
+		buttons[0] = new Button(20, 30, 150, 60, al_map_rgb(255, 255, 255), "Restart",
+								ADD_BLOCK);
+		buttons[1] = new Button(200, 30, 150, 60, al_map_rgb(255,255,255), "Auto",
+                                AUTO_COMPLETE);
+
+        /*buttons[2] = new Button(margin, margin+locationy, size-margin, size-margin, RED, "C",
+                                RESTART);*/
+
+		switch (wait_and_draw(blocks)) {
+			case 1:
+				return 1; // Exit
+			case 2:
+				continue; // Restart
+			default:
+				break;
+		}
+//		if (wait_and_draw(blocks) == 1) {
+//
+//		}
+		switch (ToH(blocks, numBlocks, 0, 1, 2)) {
+			case 1:
+				return 1; // Exit
+			case 2:
+				cout << "case 2";
+				continue; // Restart
+			default:
+				break;
+		}
+
+		bool stop = false;
+		while (!stop) {
+			switch (wait_and_draw(blocks)) {
+				case 1:
+					return 1; // Exit
+				case 2:
+					stop = true; // Restart
+				default:
+					break;
+			}
+		}
+
+		// restarting
 	}
-	
-    // SECOND LINE C AC POP POW
-    buttons[0] = new Button(20, 30, 60, 60, al_map_rgb(255,255,255f), "TT",
-                            ADD_BLOCK);
-	/*buttons[1] = new Button(margin, margin+locationy, size-margin, size-margin, RED, "C",
-                            REMOVE_BLO);
-    buttons[2] = new Button(margin, margin+locationy, size-margin, size-margin, RED, "C",
-                            RESTART);*/
-		
-	if (wait_and_draw(blocks) == 1) {
-		return 1;
-	}
-	if (ToH(blocks, numBlocks,0,1,2) == 1) {
-		return 1;
-	}
-	while(wait_and_draw(blocks) == 0) {
-		//press esc to exit
-	}
-	
 }
 
 int wait_and_draw(Block* blocks[]) {
+    /* This function waits for input and will return based on the input */
+
 	draw_all(blocks);
 	al_flip_display();
 	while(true) {
@@ -96,28 +133,53 @@ int wait_and_draw(Block* blocks[]) {
 				return 0;
 			}
 		}
+		else if(ev.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN) {
+			if(ev.mouse.button == 1) {
+				// Find out if the user clicked the button
+				if (buttons[0]->checkMouse(ev.mouse.x,ev.mouse.y)) {
+					return 2;
+				}
+			}
+		}
     }
     
     return 0;
 }
 
 int ToH(Block* blocks[], int dskToMv, int cLocation, int tmpLocation, int fLocation) {
-	if( dskToMv != 0 ) 
+    /* This is a recursive algorithm to solve the Towers of Hanoi */
+
+	if( dskToMv != 0 )
     {
-		
-        if (ToH(blocks, dskToMv-1, cLocation, fLocation, tmpLocation ) == 1) {
-			return 1;
+		switch (ToH(blocks, dskToMv-1, cLocation, fLocation, tmpLocation)) {
+			case 1:
+				return 1; // Exit
+			case 2:
+				return 2; // Restart
+			default:
+				break;
 		}
 		Block* toMove = pillar[cLocation].pop();
 		pillar[fLocation].push(toMove);
 		toMove->setHeight(pillar[fLocation].getSize()-1);
 		toMove->setPillar(fLocation);
-		
-    	if (wait_and_draw(blocks) == 1) {
-			return 1;
+
+		switch (wait_and_draw(blocks)) {
+			case 1:
+				return 1; // Exit
+			case 2:
+				return 2; // Restart
+			default:
+				break;
 		}
-        if (ToH(blocks, dskToMv-1, tmpLocation, cLocation, fLocation ) == 1) {
-        	return 1;
+
+		switch (ToH(blocks, dskToMv-1, tmpLocation, cLocation, fLocation)) {
+			case 1:
+				return 1; // Exit
+			case 2:
+				return 2; // Restart
+			default:
+				break;
 		}
     }
     return 0;
@@ -125,12 +187,9 @@ int ToH(Block* blocks[], int dskToMv, int cLocation, int tmpLocation, int fLocat
 
 
 void draw_all(Block* to_draw[]) {
-	int pillar1x = 125;
-	
-	int pillar2x = ScreenWidth/2;
-	
-	int pillar3x = ScreenWidth-25;
-	
+    /* This function will draw all the blocks, buttons, and pillars */
+
+    // Draw all the pillars
 	al_clear_to_color(al_map_rgb(176,196,222));
 	al_draw_filled_rectangle(100,ScreenHeight,150,ScreenHeight-250,al_map_rgb(210,105,30));
 	al_draw_filled_rectangle(ScreenWidth/2-25,ScreenHeight,ScreenWidth/2+25,ScreenHeight-250,al_map_rgb(210,105,30));
@@ -145,7 +204,7 @@ void draw_all(Block* to_draw[]) {
 	if (numBlocks < 6) {
 		incHeight = 32;
 	} else {
-		incHeight = 250./numBlocks;
+		incHeight = 250/numBlocks;
 	}
 	
 	for (int i = 0; i < numBlocks; i++) {
@@ -159,6 +218,8 @@ void draw_all(Block* to_draw[]) {
 }
 
 bool initializeAllegro(ALLEGRO_DISPLAY *&display) {
+    /* This function initializes Allegro 5 */
+
     if (!al_init()) {
         cerr << "failed to initialize allegro! "  << endl;
         return false;

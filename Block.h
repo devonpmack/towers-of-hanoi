@@ -25,4 +25,4 @@ class Block {
 };
 
 
-#endif //RPN_STACK_H
+#endif //BLOCK_H

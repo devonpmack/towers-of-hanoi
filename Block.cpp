@@ -6,8 +6,10 @@
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
 #include <cstdlib>
+
 #define SCREENHEIGHT 480
 #define SCREENWIDTH 760
+
 using namespace std;
 
 Block::Block() {
@@ -19,8 +21,8 @@ Block::Block(int height_in, int num_in) {
 		PILLAR_X[0] = 125;
 		PILLAR_X[1] = SCREENWIDTH/2;
 		PILLAR_X[2] = SCREENWIDTH-125;
-		
-		num = num_in;
+
+        num = num_in;
 		height = height_in;
 		colour = al_map_rgb(rand() % 256, rand() % 256, rand() % 256);
 }
