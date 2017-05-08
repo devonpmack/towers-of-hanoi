@@ -6,7 +6,7 @@
 #define RPN_STACK_H
 
 #include "Block.h"
-//#include "Block.cpp"
+#include "Block.cpp"
 
 #include <iostream>
 

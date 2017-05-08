@@ -1,7 +1,7 @@
 #include <iostream>
-//#include "Stack.cpp"
+#include "Stack.cpp"
 #include "Stack.h"
-//#include "Button.cpp"
+#include "Button.cpp"
 #include "Button.h"
 
 #include "Block.h"
@@ -22,14 +22,16 @@ int wait_and_draw(Block* blocks[]);
 
 int ScreenWidth = 760;
 int ScreenHeight = 480;
-int numBlocks=7;
-
+int numBlocks = 7;
+int moveCount = 0;
 bool autorun = false;
 ALLEGRO_EVENT_QUEUE *event_queue = NULL;
 
 Stack pillar[3];
 const int nButtons = 3;
 Button *buttons[nButtons];
+
+ALLEGRO_FONT *fFont; 
 
 enum b_event {
     ADD_BLOCK,REMOVE_BLOCK,RESTART,AUTO_COMPLETE
@@ -39,8 +41,8 @@ int main(int argc, char **argv) {
 	cout << "How many blocks would you like to solve?" << endl;
 	cin >> numBlocks;
 	
-	if (numBlocks < 2) {
-		cout << "Use at least 1 disk.";
+	if (numBlocks <= 0) {
+		cout << "Use at least 1 disk." << endl;
 		return 1;
 	}
 	srand(time(NULL));
@@ -51,32 +53,38 @@ int main(int argc, char **argv) {
 		return false;
 	}	
 	
+	fFont = al_load_font("font.ttf",30,0);
+	
 	Block *blocks[numBlocks];
 	while (true) {
 		// Reset everything (code restart)
+		moveCount = 0;
 		for (int i = 0; i < 3; i++) {
 			while (pillar[i].getSize()) {
 				pillar[i].pop();
 			}
 		}
 
-        autorun = false;
-
+        
         /* --- Main loop --- */
 		int b_number = numBlocks;
 		for (int i = 0; i < numBlocks; i++) {
 			blocks[i] = new Block(pillar[0].getSize(), b_number--);
 			pillar[0].push(blocks[i]);
 		}
-
+		
 		// SECOND LINE C AC POP POW
 		buttons[0] = new Button(20, 30, 150, 60, al_map_rgb(255, 255, 255), "Restart",
 								ADD_BLOCK);
+						
 		buttons[1] = new Button(200, 30, 150, 60, al_map_rgb(255,255,255), "Auto",
                                 AUTO_COMPLETE);
 
         /*buttons[2] = new Button(margin, margin+locationy, size-margin, size-margin, RED, "C",
                                 RESTART);*/
+
+		autorun = false;
+		buttons[1]->setCol(al_map_rgb(255, 255, 255));
 
 		switch (wait_and_draw(blocks)) {
 			case 1:
@@ -98,7 +106,10 @@ int main(int argc, char **argv) {
 			default:
 				break;
 		}
-
+		
+		autorun = false;
+		buttons[1]->setCol(al_map_rgb(255, 255, 255));
+		
 		bool stop = false;
 		while (!stop) {
 			switch (wait_and_draw(blocks)) {
@@ -144,7 +155,6 @@ int wait_and_draw(Block* blocks[]) {
                 }
                 if (buttons[1]->checkMouse(ev.mouse.x, ev.mouse.y)) {
                     autorun = !autorun;
-                    cout << autorun;
                     if (autorun) {
                         buttons[1]->setCol(al_map_rgb(255, 150, 150));
                     } else {
@@ -162,7 +172,7 @@ int wait_and_draw(Block* blocks[]) {
 
 int ToH(Block* blocks[], int dskToMv, int cLocation, int tmpLocation, int fLocation) {
     /* This is a recursive algorithm to solve the Towers of Hanoi */
-
+	
 	if( dskToMv != 0 )
     {
 		switch (ToH(blocks, dskToMv-1, cLocation, fLocation, tmpLocation)) {
@@ -173,6 +183,7 @@ int ToH(Block* blocks[], int dskToMv, int cLocation, int tmpLocation, int fLocat
 			default:
 				break;
 		}
+		moveCount++;
 		Block* toMove = pillar[cLocation].pop();
 		pillar[fLocation].push(toMove);
 		toMove->setHeight(pillar[fLocation].getSize()-1);
@@ -230,6 +241,9 @@ void draw_all(Block* to_draw[]) {
 	buttons[0]->draw();
 
     buttons[1]->draw();
+    
+    al_draw_textf(fFont, al_map_rgb(0,0,0), 350,30, ALLEGRO_ALIGN_LEFT, "Number of Moves: %d", moveCount);
+	    
 	al_flip_display();
 }
 
@@ -276,7 +290,7 @@ bool initializeAllegro(ALLEGRO_DISPLAY *&display) {
     display = al_create_display(ScreenWidth, ScreenHeight);
     cout << "Successfully Initialized display" << endl;
 
-    ALLEGRO_TIMER *timer = al_create_timer(1.0 / 300);
+    ALLEGRO_TIMER *timer = al_create_timer(1.0 / ((numBlocks-3)*(numBlocks-3)));
     if(!timer) {
         cerr << "failed to create timer!" << endl;
         return false;
