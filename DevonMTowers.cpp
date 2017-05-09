@@ -31,11 +31,7 @@ Stack pillar[3];
 const int nButtons = 3;
 Button *buttons[nButtons];
 
-ALLEGRO_FONT *fFont; 
-
-enum b_event {
-    ADD_BLOCK,REMOVE_BLOCK,RESTART,AUTO_COMPLETE
-};
+ALLEGRO_FONT *fFont;
 
 int main(int argc, char **argv) {
 	cout << "How many blocks would you like to solve?" << endl;
@@ -73,15 +69,13 @@ int main(int argc, char **argv) {
 			pillar[0].push(blocks[i]);
 		}
 		
-		// SECOND LINE C AC POP POW
+		// Restart button
 		buttons[0] = new Button(20, 30, 150, 60, al_map_rgb(255, 255, 255), "Restart",
-								ADD_BLOCK);
+								0);
 						
+		// Auto button
 		buttons[1] = new Button(200, 30, 150, 60, al_map_rgb(255,255,255), "Auto",
-                                AUTO_COMPLETE);
-
-        /*buttons[2] = new Button(margin, margin+locationy, size-margin, size-margin, RED, "C",
-                                RESTART);*/
+                                0);
 
 		autorun = false;
 		buttons[1]->setCol(al_map_rgb(255, 255, 255));
@@ -94,9 +88,7 @@ int main(int argc, char **argv) {
 			default:
 				break;
 		}
-//		if (wait_and_draw(blocks) == 1) {
-//
-//		}
+
 		switch (ToH(blocks, numBlocks, 0, 1, 2)) {
 			case 1:
 				return 1; // Exit
@@ -183,6 +175,8 @@ int ToH(Block* blocks[], int dskToMv, int cLocation, int tmpLocation, int fLocat
 			default:
 				break;
 		}
+		
+		// Move the block
 		moveCount++;
 		Block* toMove = pillar[cLocation].pop();
 		pillar[fLocation].push(toMove);
@@ -235,15 +229,14 @@ void draw_all(Block* to_draw[]) {
 	for (int i = 0; i < numBlocks; i++) {
 		to_draw[i]->draw(incWidth, incHeight);
 	}
-	//for (int i = 0; i < nButtons; i++) {
-	//	buttons[i]->draw();
-	//}
+	
+	// Draw the buttons
 	buttons[0]->draw();
-
     buttons[1]->draw();
     
-    al_draw_textf(fFont, al_map_rgb(0,0,0), 350,30, ALLEGRO_ALIGN_LEFT, "Number of Moves: %d", moveCount);
-	    
+	// Draw the text
+    al_draw_textf(fFont, al_map_rgb(0,0,0), 400,50, ALLEGRO_ALIGN_LEFT, "Number of Moves: %d", moveCount);
+
 	al_flip_display();
 }
 

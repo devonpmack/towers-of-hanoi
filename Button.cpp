@@ -23,7 +23,7 @@ Button::Button(int x1_in, int y1_in, int width, int height, ALLEGRO_COLOR color_
     hovering = false;
     margin = 2;
     event = event_in;
-    font = al_load_font("font.ttf",30,0);//"C:\\Users\\Devon Mack\\CLionProjects\\Rpn\\font.ttf", 30, 0);
+    font = al_load_font("font.ttf",30,0);
     //font = al_load_font("C:\\Users\\Devon Mack\\CLionProjects\\towers-of-hanoi\\font.ttf", 30, 0);
     if (!font) {
         throw invalid_argument("Error loading font!");
