@@ -46,6 +46,6 @@ void Block::draw(int incWidth, int incHeight) {
 								 SCREENHEIGHT-height*incHeight,
 								 PILLAR_X[pillar]+incWidth*num + minRadius,
 								 SCREENHEIGHT-height*incHeight-incHeight,
-								 al_map_rgb(0,0,0),3);
+								 BLACK,3);
 }
 

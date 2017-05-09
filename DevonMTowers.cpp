@@ -12,6 +12,11 @@
 #include <allegro5/allegro_ttf.h>
 #include <time.h>
 
+#define WHITE al_map_rgb(255,255,255)
+#define RED al_map_rgb(255, 150, 150)
+#define BROWN al_map_rgb(210,105,30)
+#define BLACK al_map_rgb(0,0,0)
+
 using namespace std;
 
 bool initializeAllegro(ALLEGRO_DISPLAY *&display);
@@ -22,7 +27,7 @@ int wait_and_draw(Block* blocks[]);
 
 int ScreenWidth = 760;
 int ScreenHeight = 480;
-int numBlocks = 7;
+int numBlocks = 0;
 int moveCount = 0;
 bool autorun = false;
 ALLEGRO_EVENT_QUEUE *event_queue = NULL;
@@ -34,6 +39,7 @@ Button *buttons[nButtons];
 ALLEGRO_FONT *fFont;
 
 int main(int argc, char **argv) {
+	// Get input
 	cout << "How many blocks would you like to solve?" << endl;
 	cin >> numBlocks;
 	
@@ -70,15 +76,16 @@ int main(int argc, char **argv) {
 		}
 		
 		// Restart button
-		buttons[0] = new Button(20, 30, 150, 60, al_map_rgb(255, 255, 255), "Restart",
+		buttons[0] = new Button(20, 30, 150, 60, WHITE, "Restart",
 								0);
 						
 		// Auto button
-		buttons[1] = new Button(200, 30, 150, 60, al_map_rgb(255,255,255), "Auto",
+		buttons[1] = new Button(200, 30, 150, 60, WHITE, "Auto",
                                 0);
-
+		
+		// Reset the auto-run
 		autorun = false;
-		buttons[1]->setCol(al_map_rgb(255, 255, 255));
+		buttons[1]->setCol(WHITE);
 
 		switch (wait_and_draw(blocks)) {
 			case 1:
@@ -99,8 +106,9 @@ int main(int argc, char **argv) {
 				break;
 		}
 		
+		// Since the code finished turn off the autorun
 		autorun = false;
-		buttons[1]->setCol(al_map_rgb(255, 255, 255));
+		buttons[1]->setCol(WHITE);
 		
 		bool stop = false;
 		while (!stop) {
@@ -148,9 +156,9 @@ int wait_and_draw(Block* blocks[]) {
                 if (buttons[1]->checkMouse(ev.mouse.x, ev.mouse.y)) {
                     autorun = !autorun;
                     if (autorun) {
-                        buttons[1]->setCol(al_map_rgb(255, 150, 150));
+                        buttons[1]->setCol(RED);
                     } else {
-                        buttons[1]->setCol(al_map_rgb(255, 255, 255));
+                        buttons[1]->setCol(WHITE);
                     }
                     draw_all(blocks);
                 }
@@ -208,18 +216,22 @@ int ToH(Block* blocks[], int dskToMv, int cLocation, int tmpLocation, int fLocat
 void draw_all(Block* to_draw[]) {
     /* This function will draw all the blocks, buttons, and pillars */
 
-    // Draw all the pillars
-	al_clear_to_color(al_map_rgb(176,196,222));
-	al_draw_filled_rectangle(100,ScreenHeight,150,ScreenHeight-250,al_map_rgb(210,105,30));
-	al_draw_filled_rectangle(ScreenWidth/2-25,ScreenHeight,ScreenWidth/2+25,ScreenHeight-250,al_map_rgb(210,105,30));
-	al_draw_filled_rectangle(ScreenWidth-150,ScreenHeight,ScreenWidth-100,ScreenHeight-250,al_map_rgb(210,105,30));
-	al_draw_rectangle(100,ScreenHeight,150,ScreenHeight-250,al_map_rgb(0,0,0),3);
-	al_draw_rectangle(ScreenWidth/2-25,ScreenHeight,ScreenWidth/2+25,ScreenHeight-250,al_map_rgb(0,0,0),3);
-	al_draw_rectangle(ScreenWidth-150,ScreenHeight,ScreenWidth-100,ScreenHeight-250,al_map_rgb(0,0,0),3);
+    al_clear_to_color(al_map_rgb(176,196,222)); // Clear screen to light blue
+    
+	// Draw all the pillars
+	al_draw_filled_rectangle(100 ,ScreenHeight, 150, ScreenHeight-250, BROWN); 
+	al_draw_filled_rectangle(ScreenWidth/2-25,ScreenHeight,ScreenWidth/2+25,ScreenHeight-250, BROWN);
+	al_draw_filled_rectangle(ScreenWidth-150,ScreenHeight,ScreenWidth-100,ScreenHeight-250, BROWN);
+	
+	// Draw the borders on pillars (black)
+	al_draw_rectangle(100,ScreenHeight,150,ScreenHeight-250,BLACK,3);
+	al_draw_rectangle(ScreenWidth/2-25,ScreenHeight,ScreenWidth/2+25,ScreenHeight-250,BLACK,3);
+	al_draw_rectangle(ScreenWidth-150,ScreenHeight,ScreenWidth-100,ScreenHeight-250,BLACK,3);
 	
 	int incHeight;
 	int incWidth = (ScreenWidth/6-40)/numBlocks;
 	
+	// When you use 3 blocks it shouldn't scale to take up full pillar
 	if (numBlocks < 6) {
 		incHeight = 32;
 	} else {
@@ -234,8 +246,8 @@ void draw_all(Block* to_draw[]) {
 	buttons[0]->draw();
     buttons[1]->draw();
     
-	// Draw the text
-    al_draw_textf(fFont, al_map_rgb(0,0,0), 400,50, ALLEGRO_ALIGN_LEFT, "Number of Moves: %d", moveCount);
+	// Draw the text (black)
+    al_draw_textf(fFont, BLACK, 400,50, ALLEGRO_ALIGN_LEFT, "Number of Moves: %d", moveCount);
 
 	al_flip_display();
 }
